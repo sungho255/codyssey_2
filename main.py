@@ -1,6 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
-
 
 @dataclass
 class Quiz:
@@ -13,9 +12,15 @@ class QuizData:
     quizzes: list[Quiz]
     best_score: int
 
-@dataclass
+def load_quiz_data(file_path: str) -> QuizData:
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    quizzes = [Quiz(**quiz) for quiz in data['quizzes']]
+    best_score = data['best_score']
+    return QuizData(quizzes=quizzes, best_score=best_score)
+
 class QuizGame:
-    quiz_data: QuizData
+    quiz_data: QuizData = field(default_factory=lambda: load_quiz_data('quiz_data.json'))
     select_num: int = 0
 
     def play_quiz(self):
