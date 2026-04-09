@@ -23,8 +23,23 @@ class QuizGame:
     quiz_data: QuizData = field(default_factory=lambda: load_quiz_data('quiz_data.json'))
 
     def play_quiz(self):
-        
-        return True
+        print(f"퀴즈를 시작합니다! (총 {len(self.quiz_data.quizzes)}문제)")
+
+        for i in range(len(self.quiz_data.quizzes)):
+            print('-'*30)
+            quiz = self.quiz_data.quizzes[i]
+            print(f"[문제 {i+1}]")
+            print(quiz.question)
+
+            for j, choice in enumerate(quiz.choices):
+                print(f"{j+1}. {choice}")
+
+            user_answer = int(input("정답 입력: "))
+            if user_answer == quiz.answer:
+                print("정답입니다!")
+            else:
+                print(f"틀렸습니다! 정답은 {quiz.answer}번입니다.")
+            print('-'*30)
 
     def add_quiz(self):
         return True
