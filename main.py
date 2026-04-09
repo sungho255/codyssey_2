@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import json
+import sys
 
 @dataclass
 class Quiz:
@@ -55,7 +56,6 @@ class QuizGame:
         new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
         self.quiz_data.quizzes.append(new_quiz)
         print("퀴즈가 추가되었습니다!")
-        return True
 
     # 퀴즈 목록
     def list_quiz(self): 
@@ -68,11 +68,11 @@ class QuizGame:
 
     # 점수 확인
     def check_score(self):
-        return True
-
+        print(f"🏆최고 점수: {self.quiz_data.best_score}점 ({self.quiz_data.quizzes}문제 중 {self.quiz_data.best_score}문제 정답)")
+        
     # 종료
     def exit_game(self):
-        return True
+        sys.exit(0)
 
 if __name__ == "__main__":
     menu_dict = {"퀴즈 풀기": None, "퀴즈 추가": None, "퀴즈 목록": None, "점수 확인": None, "종료": None}
