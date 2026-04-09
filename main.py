@@ -22,6 +22,7 @@ def load_quiz_data(file_path: str) -> QuizData:
 class QuizGame:
     quiz_data: QuizData = field(default_factory=lambda: load_quiz_data('quiz_data.json'))
 
+    # 퀴즈 풀기
     def play_quiz(self):
         print(f"퀴즈를 시작합니다! (총 {len(self.quiz_data.quizzes)}문제)")
 
@@ -29,7 +30,7 @@ class QuizGame:
             print('-'*30)
             quiz = self.quiz_data.quizzes[i]
             print(f"[문제 {i+1}]")
-            print(quiz.question)
+            print(quiz.question)            
 
             for j, choice in enumerate(quiz.choices):
                 print(f"{j+1}. {choice}")
@@ -41,9 +42,22 @@ class QuizGame:
                 print(f"틀렸습니다! 정답은 {quiz.answer}번입니다.")
             print('-'*30)
 
+    # 퀴즈 추가
     def add_quiz(self):
+        print("➕새로운 퀴즈를 추가합니다.")
+        new_question = input("문제를 입력하세요: ")
+        new_choices = []
+        for i in range(len(self.quiz_data.quizzes[0].choices)):
+            new_choice = input(f"선택지 {i+1}: ")
+            new_choices.append(new_choice)
+        new_answer = int(input("정답 번호(1~4): "))
+
+        new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
+        self.quiz_data.quizzes.append(new_quiz)
+        print("퀴즈가 추가되었습니다!")
         return True
 
+    # 퀴즈 목록
     def list_quiz(self): 
         print(f"등록된 퀴즈 목록 ({len(self.quiz_data.quizzes)}개)")
         print('-'*30)   
@@ -52,9 +66,11 @@ class QuizGame:
             print(f"[{i+1}] {quiz.question}")
         print('-'*30)
 
+    # 점수 확인
     def check_score(self):
         return True
 
+    # 종료
     def exit_game(self):
         return True
 
