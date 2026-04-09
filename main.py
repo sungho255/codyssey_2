@@ -21,15 +21,16 @@ def load_quiz_data(file_path: str) -> QuizData:
     return QuizData(quizzes=quizzes, best_score=best_score)
 
 class QuizGame:
-    quiz_data: QuizData = field(default_factory=lambda: load_quiz_data('quiz_data.json'))
+    def __init__(self):
+        self.__quiz_data = load_quiz_data('state.json')
 
     # 퀴즈 풀기
     def play_quiz(self):
-        print(f"퀴즈를 시작합니다! (총 {len(self.quiz_data.quizzes)}문제)")
+        print(f"퀴즈를 시작합니다! (총 {len(self.__quiz_data.quizzes)}문제)")
 
-        for i in range(len(self.quiz_data.quizzes)):
+        for i in range(len(self.__quiz_data.quizzes)):
             print('-'*30)
-            quiz = self.quiz_data.quizzes[i]
+            quiz = self.__quiz_data.quizzes[i]
             print(f"[문제 {i+1}]")
             print(quiz.question)            
 
@@ -48,43 +49,48 @@ class QuizGame:
         print("➕새로운 퀴즈를 추가합니다.")
         new_question = input("문제를 입력하세요: ")
         new_choices = []
-        for i in range(len(self.quiz_data.quizzes[0].choices)):
+        for i in range(len(self.__quiz_data.quizzes[0].choices)):
             new_choice = input(f"선택지 {i+1}: ")
             new_choices.append(new_choice)
         new_answer = int(input("정답 번호(1~4): "))
 
         new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
-        self.quiz_data.quizzes.append(new_quiz)
+        self.__quiz_data.quizzes.append(new_quiz)
         print("퀴즈가 추가되었습니다!")
 
     # 퀴즈 목록
     def list_quiz(self): 
-        print(f"등록된 퀴즈 목록 ({len(self.quiz_data.quizzes)}개)")
+        print(f"등록된 퀴즈 목록 ({len(self.__quiz_data.quizzes)}개)")
         print('-'*30)   
-        for i in range(len(self.quiz_data.quizzes)):
-            quiz = self.quiz_data.quizzes[i]
+        for i in range(len(self.__quiz_data.quizzes)):
+            quiz = self.__quiz_data.quizzes[i]
             print(f"[{i+1}] {quiz.question}")
         print('-'*30)
 
     # 점수 확인
     def check_score(self):
-        print(f"🏆최고 점수: {self.quiz_data.best_score}점 ({self.quiz_data.quizzes}문제 중 {self.quiz_data.best_score}문제 정답)")
+        best_score = self.__quiz_data.best_score
+        total_quizzes = len(self.__quiz_data.quizzes)
+        print(f"🏆최고 점수: {best_score}점 ({total_quizzes}문제 중 {best_score}문제 정답)")
         
     # 종료
     def exit_game(self):
         sys.exit(0)
 
 if __name__ == "__main__":
-    menu_dict = {"퀴즈 풀기": None, "퀴즈 추가": None, "퀴즈 목록": None, "점수 확인": None, "종료": None}
+    game = QuizGame()
+    menu_dict = {"퀴즈 풀기": game.play_quiz, "퀴즈 추가": game.add_quiz, "퀴즈 목록": game.list_quiz, "점수 확인": game.check_score, "종료": game.exit_game}
 
-    print('='*30)
-    print('🎲나만의 퀴즈 게임🎲')
-    print('='*30)
+    while True:
+        print('='*30)
+        print('🎲나만의 퀴즈 게임🎲')
+        print('='*30)
 
-    for i, menu in enumerate(menu_dict.keys()):
-        print(f"{i+1}. {menu}")
-    print('='*30)
+        for i, menu in enumerate(menu_dict.keys()):
+            print(f"{i+1}. {menu}")
+        print('='*30)
 
-    input_num = int(input("메뉴를 선택하세요: "))
-    
-    print(list(menu_dict.keys())[input_num-1])
+        input_num = int(input("메뉴를 선택하세요: "))
+        
+        print(list(menu_dict.keys())[input_num-1])
+        menu_dict[list(menu_dict.keys())[input_num-1]]()
