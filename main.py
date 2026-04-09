@@ -29,8 +29,13 @@ class QuizGame:
     def add_quiz(self):
         return True
 
-    def list_quiz(self):
-        return True
+    def list_quiz(self): 
+        print(f"등록된 퀴즈 목록 ({len(self.quiz_data.quizzes)}개)")
+        print('-'*30)   
+        for i in range(len(self.quiz_data.quizzes)):
+            quiz = self.quiz_data.quizzes[i]
+            print(f"[{i+1}] {quiz.question}")
+        print('-'*30)
 
     def check_score(self):
         return True
