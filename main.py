@@ -21,7 +21,6 @@ def load_quiz_data(file_path: str) -> QuizData:
 
 class QuizGame:
     quiz_data: QuizData = field(default_factory=lambda: load_quiz_data('quiz_data.json'))
-    select_num: int = 0
 
     def play_quiz(self):
         
