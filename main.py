@@ -2,12 +2,14 @@ from dataclasses import dataclass, field
 import json
 import sys
 
-@dataclass
+# 퀴즈 데이터 구조 정의
+@dataclass  
 class Quiz:
     question: str
     choices: list[str]
     answer: int
 
+# 퀴즈 데이터와 최고 점수 관리
 @dataclass
 class QuizData:
     quizzes: list[Quiz]
@@ -32,7 +34,7 @@ class QuizGame:
             print('-'*30)
             quiz = self.__quiz_data.quizzes[i]
             print(f"[문제 {i+1}]")
-            print(quiz.question)            
+            print(quiz.question)
 
             for j, choice in enumerate(quiz.choices):
                 print(f"{j+1}. {choice}")
@@ -80,7 +82,7 @@ class QuizGame:
 if __name__ == "__main__":
     game = QuizGame()
     menu_dict = {"퀴즈 풀기": game.play_quiz, "퀴즈 추가": game.add_quiz, "퀴즈 목록": game.list_quiz, "점수 확인": game.check_score, "종료": game.exit_game}
-
+    
     while True:
         print('='*30)
         print('🎲나만의 퀴즈 게임🎲')
@@ -89,8 +91,11 @@ if __name__ == "__main__":
         for i, menu in enumerate(menu_dict.keys()):
             print(f"{i+1}. {menu}")
         print('='*30)
+        try:
+            input_num = int(input("메뉴를 선택하세요: ")) - 1
 
-        input_num = int(input("메뉴를 선택하세요: "))
-        
-        print(list(menu_dict.keys())[input_num-1])
-        menu_dict[list(menu_dict.keys())[input_num-1]]()
+            print(list(menu_dict.keys())[input_num])
+            menu_dict[list(menu_dict.keys())[input_num]]()
+        # ValueError: int() 변환 실패 - 공백 , IndexError: 메뉴 번호 범위 초과
+        except (ValueError, IndexError):
+            print("잘못된 입력입니다. 다시 시도하세요.")
