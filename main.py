@@ -1,9 +1,19 @@
 from dataclasses import dataclass, field
+from contextlib import contextmanager
+import signal
 import json
 import sys
 
+def control_z_handler(signum, frame):
+    # Ctrl + Z가 들어오면 즉시 예외를 발생시킴
+    raise RuntimeError("Ctrl+Z가 감지되었습니다!")
+
+# macOS/Linux에서 Ctrl+Z(SIGTSTP) 시그널에 핸들러 등록
+if hasattr(signal, 'SIGTSTP'):
+    signal.signal(signal.SIGTSTP, control_z_handler)
+
 # 퀴즈 데이터 구조 정의
-@dataclass  
+@dataclass
 class Quiz:
     question: str
     choices: list[str]
@@ -54,7 +64,7 @@ class QuizGame:
         for i in range(len(self.__quiz_data.quizzes[0].choices)):
             new_choice = input(f"선택지 {i+1}: ")
             new_choices.append(new_choice)
-        new_answer = int(input("정답 번호(1~4): "))
+        new_answer = int(input("정답 번호: "))
 
         new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
         self.__quiz_data.quizzes.append(new_quiz)
@@ -82,7 +92,8 @@ class QuizGame:
 if __name__ == "__main__":
     game = QuizGame()
     menu_dict = {"퀴즈 풀기": game.play_quiz, "퀴즈 추가": game.add_quiz, "퀴즈 목록": game.list_quiz, "점수 확인": game.check_score, "종료": game.exit_game}
-    
+    menu_names = tuple(menu_dict.keys())
+    MAX_MENU = len(menu_names)
     while True:
         print('='*30)
         print('🎲나만의 퀴즈 게임🎲')
@@ -92,10 +103,19 @@ if __name__ == "__main__":
             print(f"{i+1}. {menu}")
         print('='*30)
         try:
-            input_num = int(input("메뉴를 선택하세요: ")) - 1
+            input_num = int(input("메뉴를 선택하세요: "))
 
-            print(list(menu_dict.keys())[input_num])
-            menu_dict[list(menu_dict.keys())[input_num]]()
-        # ValueError: int() 변환 실패 - 공백 , IndexError: 메뉴 번호 범위 초과
+            if input_num < 1 or input_num > MAX_MENU:
+                print("잘못된 입력입니다. 다시 시도하세요.")
+                continue
+            
+            input_num -= 1
+
+            print(menu_names[input_num])
+            menu_dict[menu_names[input_num]]()
+        # ValueError: int() 변환 실패 - 공백 , IndexError: 메뉴 번호 범위 초과, 
         except (ValueError, IndexError):
             print("잘못된 입력입니다. 다시 시도하세요.")
+        except ( KeyboardInterrupt, RuntimeError):
+            print("\n잘못된 입력입니다. 다시 시도하세요.")
+        
