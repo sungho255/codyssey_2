@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from contextlib import contextmanager
 import signal
 import json
+from json import JSONDecodeError
 import sys
 
 def control_z_handler(signum, frame):
@@ -25,22 +26,62 @@ class QuizData:
     quizzes: list[Quiz]
     best_score: int
 
-def load_quiz_data(file_path: str) -> QuizData:
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-    quizzes = [Quiz(**quiz) for quiz in data['quizzes']]
-    best_score = data['best_score']
-    return QuizData(quizzes=quizzes, best_score=best_score)
-
 @contextmanager
 def menu_input_handler():
-    # ValueError: int() 변환 실패 - 공백 or 문자 or 기호, KeyboardInterrupt: Ctrl+C, RuntimeError: Ctrl+Z
+    # ValueError: int() 변환 실패 - 공백 or 문자 or 기호, KeyboardInterrupt: Ctrl+C, EOFError: Ctrl+Z
     try:
         yield
     except (ValueError):
         print("잘못된 입력입니다. 다시 시도하세요.")
-    except (KeyboardInterrupt, RuntimeError, EOFError):
+    except (KeyboardInterrupt, EOFError):
         print("\n잘못된 입력입니다. 다시 시도하세요.")
+
+@contextmanager
+def load_file_handler(primary_path: str, fallback_path: str = "./state.json"):
+    f = None
+    try:
+        # 1. 메인 경로 시도
+        try:
+            f = open(primary_path, 'r', encoding='utf-8')
+            # 파일은 열었지만 내용이 비어있거나 문법이 틀린지 미리 체크 (Optional)
+            yield f
+        except (FileNotFoundError, JSONDecodeError):
+            print("파일이 존재하지 않습니다. 기존 데이터가 생성됩니다.")
+            if f: f.close()
+            print(f"⚠️ {primary_path} 로드 실패. 백업 경로({fallback_path})를 시도합니다.")
+            
+            # 2. 백업 경로 시도
+            f = open(fallback_path, 'r', encoding='utf-8')
+            yield f
+    except Exception as e:
+        print("파일이 존재하지 않습니다. 기존 데이터가 생성됩니다.")
+
+def load_quiz_data(file_path: str) -> QuizData:
+    with load_file_handler(file_path) as f:
+        data = json.load(f)
+
+        quizzes = [Quiz(**quiz) for quiz in data['quizzes']]
+        best_score = data['best_score']
+        return QuizData(quizzes=quizzes, best_score=best_score)
+
+def save_quiz_data(file_path: str, quiz_data: QuizData):
+    # 1. 객체 데이터를 딕셔너리 형태로 변환
+    data_to_save = {
+        "quizzes": [
+            {
+                "question": q.question,
+                "choices": q.choices,
+                "answer": q.answer
+            } for q in quiz_data.quizzes
+        ],
+        "best_score": quiz_data.best_score
+    }
+    
+    # 2. 파일에 바로 쓰기
+    with open(file_path, 'w', encoding='utf-8') as f:
+        # indent=4: 보기 좋게 들여쓰기
+        # ensure_ascii=False: 한글 깨짐 방지
+        json.dump(data_to_save, f, indent=4, ensure_ascii=False)
 
 class QuizGame:
     def __init__(self):
@@ -49,8 +90,10 @@ class QuizGame:
     # 퀴즈 풀기
     def play_quiz(self):
         print(f"퀴즈를 시작합니다! (총 {len(self.__quiz_data.quizzes)}문제)")
+        current_score = 0
 
         for i in range(len(self.__quiz_data.quizzes)):
+            quiz = self.__quiz_data.quizzes[i]
             max_choice = len(self.__quiz_data.quizzes[i].choices)
             while True:
                 print('-'*30)
@@ -69,11 +112,24 @@ class QuizGame:
 
                     if user_answer == quiz.answer:
                         print("정답입니다!")
+                        current_score += 1
+                        print(f"\n 현재 점수: {current_score} / {len(self.__quiz_data.quizzes)}")
                     else:
                         print(f"틀렸습니다! 정답은 {quiz.answer}번입니다.")
                     
                     break
                 print('-'*30)
+        print(f"\n🎮 퀴즈 종료! 최종 점수: {current_score} / {len(self.__quiz_data.quizzes)}")
+
+        # 최고 점수 갱신 확인
+        if current_score > self.__quiz_data.best_score:
+            print(f"축하합니다! 최고 점수가 갱신되었습니다: {self.__quiz_data.best_score} -> {current_score}")
+            self.__quiz_data.best_score = current_score
+            
+            # 파일에 즉시 저장하여 데이터 영속성 확보
+            save_quiz_data('state.json', self.__quiz_data)
+        else:
+            print(f"현재 최고 점수: {self.__quiz_data.best_score}")
 
     # 퀴즈 추가
     def add_quiz(self):
@@ -112,6 +168,7 @@ class QuizGame:
         # 4. 객체 생성 및 저장
         new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
         self.__quiz_data.quizzes.append(new_quiz)
+        save_quiz_data('state.json', self.__quiz_data)
         print("퀴즈가 추가되었습니다!")
 
     # 퀴즈 목록
