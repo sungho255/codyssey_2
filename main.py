@@ -3,7 +3,6 @@ from contexts import menu_input_handler
 from quiz import Quiz
 
 import signal
-import json
 import sys
 
 def control_z_handler(signum, frame):
@@ -18,7 +17,7 @@ class QuizGame:
     def __init__(self):
         self.__quiz_data = load_quiz_data('state.json')
 
-    # 퀴즈 풀기
+    # 1. 퀴즈 풀기
     def play_quiz(self):
         print(f"퀴즈를 시작합니다! (총 {len(self.__quiz_data.quizzes)}문제)")
         current_score = 0
@@ -62,10 +61,10 @@ class QuizGame:
         else:
             print(f"현재 최고 점수: {self.__quiz_data.best_score}")
 
-    # 퀴즈 추가
+    # 2. 퀴즈 추가
     def add_quiz(self):
         print("➕새로운 퀴즈를 추가합니다.")
-        # 1. 문제 입력 (문자열이라 예외 확률은 낮지만 일관성을 위해 유지)
+        # 2-1. 문제 입력 (문자열이라 예외 확률은 낮지만 일관성을 위해 유지)
         while True:
             with menu_input_handler():
                 new_question = input("문제를 입력하세요: ").strip()
@@ -74,7 +73,7 @@ class QuizGame:
                     continue
                 break
 
-        # 2. 선택지 입력
+        # 2-2. 선택지 입력
         new_choices = []
         num_of_choices = len(self.__quiz_data.quizzes[0].choices)
         i = 0
@@ -87,7 +86,7 @@ class QuizGame:
                 new_choices.append(choice)
                 i += 1  # 성공적으로 입력했을 때만 다음 인덱스로
 
-        # 3. 정답 번호 입력
+        # 2-3. 정답 번호 입력
         while True:
             with menu_input_handler():
                 new_answer = int(input(f"정답 번호 (1~{num_of_choices}): "))
@@ -96,13 +95,13 @@ class QuizGame:
                 else:
                     print(f"1에서 {num_of_choices} 사이의 숫자를 입력하세요.")
 
-        # 4. 객체 생성 및 저장
+        # 2-4. 객체 생성 및 저장
         new_quiz = Quiz(question=new_question, choices=new_choices, answer=new_answer)
         self.__quiz_data.quizzes.append(new_quiz)
         save_quiz_data('state.json', self.__quiz_data)
         print("퀴즈가 추가되었습니다!")
 
-    # 퀴즈 목록
+    # 3. 퀴즈 목록
     def list_quiz(self): 
         print(f"등록된 퀴즈 목록 ({len(self.__quiz_data.quizzes)}개)")
         print('-'*30)   
@@ -111,13 +110,13 @@ class QuizGame:
             print(f"[{i+1}] {quiz.question}")
         print('-'*30)
 
-    # 점수 확인
+    # 4. 점수 확인
     def check_score(self):
         best_score = self.__quiz_data.best_score
         total_quizzes = len(self.__quiz_data.quizzes)
         print(f"🏆최고 점수: {best_score}점 ({total_quizzes}문제 중 {best_score}문제 정답)")
         
-    # 종료
+    # 5. 종료
     def exit_game(self):
         sys.exit(0)
 
