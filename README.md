@@ -22,12 +22,19 @@
 ---
 
 ## 2. 기능 목록
-
+<img src="./screenshot/퀴즈 메뉴.png.png" width="600px" alt="설명">
 * **퀴즈 풀기 (Play Mode):** 등록된 퀴즈를 순차적으로 풀며 실시간 점수 계산 및 최고 점수 기록 기능을 제공합니다.
+<img src="./screenshot/퀴즈 풀기.png" width="600px" alt="설명">
 * **퀴즈 추가 (Management):** 대화형 인터페이스를 통해 새로운 문제를 동적으로 추가하며 즉시 JSON DB에 반영합니다.
+<img src="./screenshot/퀴즈 추가.png" width="600px" alt="설명">
+<img src="./screenshot/퀴즈 추가1.png" width="600px" alt="설명">
 * **목록 조회:** 현재 등록된 모든 퀴즈의 타이틀을 확인합니다.
+<img src="./screenshot/퀴즈 목록.png" width="600px" alt="설명">
 * **최고 점수 추적:** 파일 시스템에 기록된 최고 점수를 확인하고 갱신 시 업데이트합니다.
+<img src="./screenshot/점수 확인.png" width="600px" alt="설명">
 * **안전한 입출력 관리:** 커스텀 `menu_input_handler`를 통해 잘못된 입력이나 강제 종료 시에도 우아한(Graceful) 처리를 지원합니다.
+<img src="./screenshot/예외 처리1.png" width="600px" alt="설명">
+<img src="./screenshot/예외 처리2.png" width="600px" alt="설명">
 
 ---
 
