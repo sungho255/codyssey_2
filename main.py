@@ -43,9 +43,9 @@ class QuizGame:
                     if user_answer == quiz.answer:
                         print("정답입니다!")
                         current_score += 1
-                        print(f"\n 현재 점수: {current_score} / {len(self.__quiz_data.quizzes)}")
                     else:
                         print(f"틀렸습니다! 정답은 {quiz.answer}번입니다.")
+                    print(f"\n 현재 점수: {current_score} / {len(self.__quiz_data.quizzes)} - 최고 점수 : {self.__quiz_data.best_score}")
                     
                     break
                 print('-'*30)
