@@ -6,9 +6,9 @@ def menu_input_handler():
     # ValueError: int() 변환 실패 - 공백 or 문자 or 기호, KeyboardInterrupt: Ctrl+C, EOFError: Ctrl+Z
     try:
         yield
-    except (ValueError, KeyboardInterrupt):
+    except (ValueError):
         print("잘못된 입력입니다. 다시 시도하세요.")
-    except (EOFError):
+    except (KeyboardInterrupt, EOFError):
         print("\n잘못된 입력입니다. 다시 시도하세요.1")
 
 @contextmanager
